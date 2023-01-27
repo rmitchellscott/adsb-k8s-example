@@ -16,7 +16,8 @@ spec:
         pod-label: adsb-feeder
         app: adsb-feeder
     spec:
-      containers: ghcr.io/sdr-enthusiasts/docker-adsbexchange:latestmikenye/adsbexchange
+      containers: 
+        image: ghcr.io/sdr-enthusiasts/docker-adsbexchange:latest
         imagePullPolicy: IfNotPresent
         name: adsb-feeder
         env:
