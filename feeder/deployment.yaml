@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adsb-feeder
+  labels:
+    app: adsb-feeder
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      pod-label: adsb-feeder
+  template:
+    metadata:
+      labels:
+        pod-label: adsb-feeder
+        app: adsb-feeder
+    spec:
+      containers: ghcr.io/sdr-enthusiasts/docker-adsbexchange:latestmikenye/adsbexchange
+        imagePullPolicy: IfNotPresent
+        name: adsb-feeder
+        env:
+        - name: ADSB_FEED_DESTINATION_HOSTNAME
+          value: feed.adsb.fi
+        - name: ADSB_FEED_SECONDARY_DESTINATION_HOSTNAME
+          value: feed2.adsb.fi
+        - name: MLAT_FEED_DESTINATION_HOSTNAME
+          value: feed.adsb.fi
+        - name: TZ
+          value: America/Denver
+        - name: BEASTHOST
+          value: beast.local
+        - name: LAT
+          valueFrom:
+            secretKeyRef:
+              name: location
+              key: lat
+        - name: LONG
+          valueFrom:
+            secretKeyRef:
+              name: location
+              key: lon
+        - name: ALT
+          value: 2012m
+        - name: SITENAME
+          value: MySite
+        - name: UUID
+          value: notSureIfThisIsNeeded
+        - name: TAR1090_ACTUAL_RANGE_OUTLINE_WIDTH
+          value: "0"
+        ports:
+        - containerPort: 30105

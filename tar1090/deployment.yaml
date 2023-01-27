@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tar1090
+  labels:
+    app: tar1090
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      pod-label: tar1090
+  template:
+    metadata:
+      labels:
+        pod-label: tar1090
+        app: tar1090
+    spec:
+      containers:
+      - image: ghcr.io/sdr-enthusiasts/docker-tar1090:latest
+        imagePullPolicy: IfNotPresent
+        name: tar1090
+        env:
+        - name: TZ
+          value: America/Denver
+        - name: BEASTHOST
+          value: beast.lan
+        - name: LAT
+          valueFrom:
+            secretKeyRef:
+              name: location
+              key: lat
+        - name: LONG
+          valueFrom:
+            secretKeyRef:
+              name: location
+              key: lon
+        - name: TAR1090_PAGETITLE
+          value: Radar
+        - name: TAR1090_MAPDIM
+          value: "false"
+        - name: TAR1090_RANGERINGSDISTANCES
+          value: "50,75,100,125,150"
+        - name: TAR1090_ACTUAL_RANGE_OUTLINE_WIDTH
+          value: "0"
+        - name: MLATHOST
+          value: mlat-service
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: tar1090-heatmap-data
+            mountPath: /var/globe_history
+          - name: tar1090-timelapse-data
+            mountPath: /var/timelapse1090
+      volumes:
+        - name: tar1090-heatmap-data
+          persistentVolumeClaim:
+            claimName: tar1090-heatmap-pv-claim
+        - name: tar1090-timelapse-data
+          persistentVolumeClaim:
+            claimName: tar1090-timelapse-pv-claim

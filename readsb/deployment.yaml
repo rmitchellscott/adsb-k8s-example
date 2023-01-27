@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readsb
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: readsb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: readsb
+    spec:
+      containers:
+      - image: ghcr.io/sdr-enthusiasts/docker-readsb-protobuf:latest
+        imagePullPolicy: IfNotPresent
+        name: readsb
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 30005
+        env:
+          - name: TZ
+            value: America/Denver
+          - name: READSB_DCFILTER
+            value: "true"
+          - name: READSB_DEVICE_TYPE
+            value: rtlsdr
+          - name: READSB_FIX
+            value: "true"
+          - name: READSB_GAIN
+            value: autogain
+          - name: READSB_LAT
+            valueFrom:
+              secretKeyRef: 
+                name: location
+                key: lat
+          - name: READSB_LON
+            valueFrom:
+              secretKeyRef:
+                name: location
+                key: lon
+          - name: READSB_MODEAC
+            value: "true"
+          - name: READSB_RX_LOCATION_ACCURACY
+            value: "2"
+          - name: READSB_STATS_RANGE
+            value: "true"
+          - name: READSB_NET_ENABLE
+            value: "true"
+        volumeMounts:
+          - name: readsb-autogain
+            mountPath: /run/autogain
+          - name: readsb-collectd
+            mountPath: /run/collectd
+          - name: usb-sdr
+            mountPath: /dev/bus/usb/001/015
+      volumes:
+        - name: readsb-autogain
+          persistentVolumeClaim:
+            claimName: readsb-autogain
+        - name: readsb-collectd
+          persistentVolumeClaim:
+            claimName: readsb-collectd
+        - name: usb-sdr
+          hostPath:
+            path: /dev/bus/usb/001/015

@@ -1,0 +1,23 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: tar1090-heatmap-pv-claim
+spec:
+# Access mode could be RWO, I'm using it from NFS storage, hence RWX
+  accessModes:
+    - ReadWriteMany 
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: tar1090-timelapse-pv-claim
+spec:
+# Access mode could be RWO, I'm using it from NFS storage, hence RWX
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
